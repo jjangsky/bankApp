@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
 
     // JWT 서버를 만들 예정, Session 사용X
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws  Exception{
         http.headers(h -> h.frameOptions(f -> f.sameOrigin()));   // iframe 허용 안함
         http.csrf(cf->cf.disable());      // enable이면 post 맨 작동 안함
@@ -39,6 +41,17 @@ public class SecurityConfig {
         http.formLogin(f->f.disable());
         // httpBasic은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
         http.httpBasic(hb->hb.disable());
+
+
+        // 인증 실패
+        http.exceptionHandling(e-> e.authenticationEntryPoint((request, response, authException) -> {
+//            CustomResponseUtil.fail(response, "로그인을 진행해 주세요", HttpStatus.UNAUTHORIZED);
+            response.setStatus(403);
+            response.getWriter().println("error 발생");
+        }));
+
+
+
 
         http.authorizeHttpRequests(c->
                 c.requestMatchers("/api/s/**").authenticated()
