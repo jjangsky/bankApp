@@ -1,6 +1,9 @@
 package com.study.bankapp.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.bankapp.domain.user.UserEnum;
+import com.study.bankapp.dto.ResponseDto;
+import com.study.bankapp.util.CustomResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -45,9 +48,15 @@ public class SecurityConfig {
 
         // 인증 실패
         http.exceptionHandling(e-> e.authenticationEntryPoint((request, response, authException) -> {
-//            CustomResponseUtil.fail(response, "로그인을 진행해 주세요", HttpStatus.UNAUTHORIZED);
-            response.setStatus(403);
-            response.getWriter().println("error 발생");
+//            ObjectMapper om = new ObjectMapper();
+//            ResponseDto<?> responseDto = new ResponseDto<>(-1, "권한없음", null);
+//            String responseBody = om.writeValueAsString(responseDto);
+//            response.setStatus(401);
+//            response.setStatus(401);
+//            response.getWriter().println(responseBody);
+
+            // Method로 빼냄
+            CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요");
         }));
 
 
