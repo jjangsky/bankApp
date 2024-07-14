@@ -1,9 +1,11 @@
 package com.study.bankapp.service;
 
+import com.study.bankapp.config.dummy.DummyObject;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserEnum;
 import com.study.bankapp.domain.user.UserRespository;
-import com.study.bankapp.service.UserService.JoinReqDto;
+import com.study.bankapp.dto.user.UserReqDto;
+import com.study.bankapp.dto.user.UserResponseDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceTest extends DummyObject {
 
     @InjectMocks
     private UserService userService;
@@ -41,7 +43,7 @@ class UserServiceTest {
     @Test
     public void 회원가입_test(){
         // given
-        JoinReqDto joinReqDto = new JoinReqDto();
+        UserReqDto.JoinReqDto joinReqDto = new UserReqDto.JoinReqDto();
         joinReqDto.setUsername("김유찬");
         joinReqDto.setPassword("1234");
         joinReqDto.setEmail("test@nate.com");
@@ -51,21 +53,13 @@ class UserServiceTest {
         // stubbing 처리 (일종의 가정법)
         // 첫 번째 Stub
         when(userRespository.findByUsername(any())).thenReturn(Optional.empty()); // 해당 메소드를 실행하면 빈값 반환
-        User ssar = User.builder()
-            .id(1L)
-            .username("김유찬")
-            .password("1234")
-            .email("test@nate.com")
-            .fullname("김유찬님님")
-            .role(UserEnum.CUSTOMER)
-            .createdAt(LocalDateTime.now())
-            .updateAt(LocalDateTime.now())
-            .build();
+
         // 두 번째 Stub
+        User ssar = newMockUser(1L, "김유찬" , "김유찬님님");
         when(userRespository.save(any())).thenReturn(ssar);
 
         // when
-        UserService.JoinResponseDto joinResponseDto = userService.registUser(joinReqDto);
+        UserResponseDto.JoinResponseDto joinResponseDto = userService.registUser(joinReqDto);
 
         // then
         assertThat(joinResponseDto.getId()).isEqualTo(1L);

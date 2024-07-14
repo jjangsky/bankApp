@@ -1,12 +1,13 @@
 package com.study.bankapp.service;
 
 import com.study.bankapp.domain.user.User;
-import com.study.bankapp.domain.user.UserEnum;
 import com.study.bankapp.domain.user.UserRespository;
+import com.study.bankapp.dto.user.UserReqDto;
+import com.study.bankapp.dto.user.UserReqDto.JoinReqDto;
+import com.study.bankapp.dto.user.UserResponseDto;
+import com.study.bankapp.dto.user.UserResponseDto.*;
 import com.study.bankapp.handler.ex.CustomApiException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -40,41 +41,9 @@ public class UserService {
 
     }
 
-    @Getter
-    @Setter
-    public static class JoinResponseDto{
-        private Long id;
-        private String username;
-        private String fullname;
-
-        public JoinResponseDto(User user) {
-            this.id = user.getId();
-            this.username = user.getUsername();
-            this.fullname = user.getFullname();
-        }
-    }
 
 
-    @Getter
-    @Setter
-    public static class JoinReqDto{
-        private String username;
-        private String password;
-        private String email;
-        private String fullname;
 
 
-        // DTO를 Entity로 Builder를 사용해서 변환
-        public User toEntity(BCryptPasswordEncoder passwordEncoder){
-            return User.builder()
-                    .username(username)
-                    .password(passwordEncoder.encode(password))
-                    .email(email)
-                    .fullname(fullname)
-                    .role(UserEnum.CUSTOMER)
-                    .build();
-        }
-
-    }
 
 }
