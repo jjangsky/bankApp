@@ -2,8 +2,7 @@ package com.study.bankapp.service;
 
 import com.study.bankapp.config.dummy.DummyObject;
 import com.study.bankapp.domain.user.User;
-import com.study.bankapp.domain.user.UserEnum;
-import com.study.bankapp.domain.user.UserRespository;
+import com.study.bankapp.domain.user.UserRepository;
 import com.study.bankapp.dto.user.UserReqDto;
 import com.study.bankapp.dto.user.UserResponseDto;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +33,7 @@ class UserServiceTest extends DummyObject {
      * 그래서 Mock 객체로 Repository가 된다는 가정 하에 Service 검증을 처리한다.
      */
     @Mock
-    private UserRespository userRespository;
+    private UserRepository userRespository;
 
     @Spy
     private BCryptPasswordEncoder bCryptPasswordEncoder;
