@@ -22,10 +22,10 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
 
     private AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, AuthenticationManager authenticationManager1) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
         setFilterProcessesUrl("/api/login");
-        this.authenticationManager = authenticationManager1;
+        this.authenticationManager = authenticationManager;
     }
 
 
@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
             return authentication;
         }catch (Exception e){
-            // 해당 오류를 반환해야 시큐리티 설정에서 "로그인을 해주세오"를 설정한 부분에 에러 메세지가 걸려서 반환됨
+           // unsuccessfulAuthentication으로 처리됨
             throw new InternalAuthenticationServiceException(e.getMessage());
         }
     }
@@ -64,5 +64,12 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
 
         UserResponseDto.LoginRespDto loginRespDto = new UserResponseDto.LoginRespDto(loginUser.getUser());
         CustomResponseUtil.success(response, loginRespDto);
+    }
+
+    // 로그인 실패 처리
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        super.unsuccessfulAuthentication(request, response, failed);
     }
 }

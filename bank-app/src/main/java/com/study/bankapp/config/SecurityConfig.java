@@ -1,6 +1,7 @@
 package com.study.bankapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.study.bankapp.config.jwt.JwtAuthenticationFilter;
 import com.study.bankapp.domain.user.UserEnum;
 import com.study.bankapp.dto.ResponseDto;
 import com.study.bankapp.util.CustomResponseUtil;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,6 +33,21 @@ public class SecurityConfig {
 
     // JWT 필터 등록 필요
 
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager,HttpSecurity>{
+        // 해당 클래스를 상속받고 필터 등록 해야함
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+            // 필터를 등록하기 위해 AuthenticationManager가 필요
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+            builder.addFilter(new JwtAuthenticationFilter(authenticationManager)); // JWT 필터 등록
+            super.configure(builder);
+        }
+
+        public HttpSecurity build(){
+            return getBuilder();
+        }
+    }
+
 
     // JWT 서버를 만들 예정, Session 사용X
     @Bean
@@ -44,6 +62,9 @@ public class SecurityConfig {
         http.formLogin(f->f.disable());
         // httpBasic은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
         http.httpBasic(hb->hb.disable());
+
+        // 필터 등록
+        http.with(new CustomSecurityFilterManager(), c-> c.build());
 
 
         // 인증 실패
