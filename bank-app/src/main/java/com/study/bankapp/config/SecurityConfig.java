@@ -2,6 +2,7 @@ package com.study.bankapp.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.bankapp.config.jwt.JwtAuthenticationFilter;
+import com.study.bankapp.config.jwt.jwtAuthorizationFilter;
 import com.study.bankapp.domain.user.UserEnum;
 import com.study.bankapp.dto.ResponseDto;
 import com.study.bankapp.util.CustomResponseUtil;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,6 +42,7 @@ public class SecurityConfig {
             // 필터를 등록하기 위해 AuthenticationManager가 필요
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
             builder.addFilter(new JwtAuthenticationFilter(authenticationManager)); // JWT 필터 등록
+            builder.addFilter(new jwtAuthorizationFilter(authenticationManager)); // 인가 필터 등록
             super.configure(builder);
         }
 
@@ -77,8 +80,21 @@ public class SecurityConfig {
 //            response.getWriter().println(responseBody);
 
             // Method로 빼냄
-            CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요");
+            CustomResponseUtil.fail(response, "로그인을 진행해 주세요", HttpStatus.UNAUTHORIZED);
         }));
+
+        // 권한 실패
+        /**
+         * 이슈 - 권한이 없는 API 요청을 날렸는데 403에러가 발생하였음
+         * 첫 번째 방법으로 Exception을 핸들링하여 403에러를 내가 지정한 response로 반환 시키려고 했으나 실패
+         * -> CustomExceptionHandler로 처리 불가능
+         * 이유를 보면 Filter 자체가 컨트롤러 요청 이전에 처리되고 에러가 반환되면 그 시점에서 처리 되니까
+         * Security Config에서 반환 처리를 해야함
+         */
+        http.exceptionHandling(e-> e.accessDeniedHandler((request, response, accessDeniedException) -> {
+            CustomResponseUtil.fail(response, "권한이 없습니다", HttpStatus.FORBIDDEN);
+        }));
+
 
 
 

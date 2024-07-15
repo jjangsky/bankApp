@@ -6,6 +6,7 @@ import com.study.bankapp.dto.ResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 
 public class CustomResponseUtil {
 
@@ -25,16 +26,18 @@ public class CustomResponseUtil {
     }
 
 
-    public static void unAuthentication(HttpServletResponse response, String msg)  {
+    public static void fail(HttpServletResponse response, String msg, HttpStatus httpStatus)  {
         try{
             ObjectMapper om = new ObjectMapper();
             ResponseDto<?> responseDto = new ResponseDto<>(-1, msg, null);
             String responseBody = om.writeValueAsString(responseDto);
-            response.setStatus(401);
+            response.setStatus(httpStatus.value());
             response.getWriter().println(responseBody);
         }catch (Exception e){
             log.error("파싱 에러");
 
         }
     }
+
+
 }
