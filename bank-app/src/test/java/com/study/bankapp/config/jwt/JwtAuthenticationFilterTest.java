@@ -1,6 +1,7 @@
 package com.study.bankapp.config.jwt;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.bankapp.config.dummy.DummyObject;
 import com.study.bankapp.domain.user.UserRepository;
@@ -66,12 +67,24 @@ public class JwtAuthenticationFilterTest extends DummyObject {
     }
 
     @Test
-    public void unsuccessfulAuthentication_test(){
+    public void unsuccessfulAuthentication_test() throws Exception {
         // given
+        UserReqDto.LoginReqDto loginReqDto = new UserReqDto.LoginReqDto();
+        loginReqDto.setUsername("ssar");
+        loginReqDto.setPassword("12345");
+        String requestBody = om.writeValueAsString(loginReqDto);
+        System.out.println("테스트 : " + requestBody);
 
         // when
+        ResultActions resultActions = mvc
+                .perform(post("/api/login").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        String jwtToken = resultActions.andReturn().getResponse().getHeader(JwtVo.Header);
+        System.out.println("테스트 : " + responseBody);
+        System.out.println("테스트 : " + jwtToken);
 
         // then
+        resultActions.andExpect(status().isUnauthorized());
     }
 
 }
