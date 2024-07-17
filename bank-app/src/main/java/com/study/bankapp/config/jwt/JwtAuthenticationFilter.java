@@ -34,7 +34,6 @@ public class JwtAuthenticationFilter  extends UsernamePasswordAuthenticationFilt
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-
         try {
             ObjectMapper om = new ObjectMapper();
             UserReqDto.LoginReqDto loginReqDto = om.readValue(request.getInputStream(), UserReqDto.LoginReqDto.class);
