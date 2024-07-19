@@ -51,7 +51,7 @@ class jwtAuthorizationFilterTest {
         // then
         resultActions.andExpect(status().isUnauthorized());
     }
-
+    // github 계정 인증 Test
     @Test
     public void authorization_admin_test() throws Exception{
         // given
