@@ -1,6 +1,6 @@
 ## 개발용
 server:
-  port: 8081
+  port: 8082
   servlet:
     encoding:
       charset: utf-8

@@ -4,15 +4,13 @@ import com.study.bankapp.domain.account.Account;
 import com.study.bankapp.domain.account.AccountRepository;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
+import com.study.bankapp.dto.account.AccountRequestDto;
 import com.study.bankapp.handler.ex.CustomApiException;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.study.bankapp.dto.account.AccountResponseDto.*;
+import com.study.bankapp.dto.account.AccountRequestDto.*;
 
 import java.util.Optional;
 
@@ -44,43 +42,4 @@ public class AccountService {
         return new AccountSaveRespDto(accountPs);
 
     }
-
-
-    @Getter
-    @Setter
-    public static class AccountSaveRespDto{
-        private Long id;
-        private Long number;
-        private Long balance;
-
-        public AccountSaveRespDto(Account account) {
-            this.id = account.getId();
-            this.number = account.getNumber();
-            this.balance = account.getBalance();
-        }
-    }
-
-    @Getter
-    @Setter
-    public static class AccountSaveReqDto{
-
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long number;
-
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long password;
-
-        public Account toEntity(User user){
-            return Account.builder()
-                    .number(number)
-                    .password(password)
-                    .balance(1000L)
-                    .user(user)
-                    .build();
-        }
-    }
-
-
 }
