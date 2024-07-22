@@ -1,5 +1,6 @@
 package com.study.bankapp.config.dummy;
 
+import com.study.bankapp.domain.account.Account;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserEnum;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,6 +35,18 @@ public class DummyObject {
                 .role(UserEnum.CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .updateAt(LocalDateTime.now())
+                .build();
+    }
+
+    protected Account newMockAccount(Long id, Long number, Long balance, User user){
+        return Account.builder()
+                .id(id)
+                .number(number)
+                .password(1234L)
+                .balance(balance)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
