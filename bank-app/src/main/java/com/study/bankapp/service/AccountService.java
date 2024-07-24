@@ -6,13 +6,18 @@ import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
 import com.study.bankapp.dto.account.AccountRequestDto;
 import com.study.bankapp.handler.ex.CustomApiException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.study.bankapp.dto.account.AccountResponseDto.*;
 import com.study.bankapp.dto.account.AccountRequestDto.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -21,6 +26,44 @@ public class AccountService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+
+    public AccountListRespDto getAccountListByUser(Long userId){
+        User userPS = userRepository.findById(userId).orElseThrow(
+                ()-> new CustomApiException("유저를 찾을 수 없습니다.")
+        );
+
+        // 유저의 모든 계좌 목록
+        List<Account> accountList = accountRepository.findByUser_id(userId);
+        return new AccountListRespDto(userPS, accountList);
+    }
+
+    @Getter
+    @Setter
+    public static class AccountListRespDto{
+        private String fullname;
+        private List<AccountDto> accounts = new ArrayList<>();
+
+        public AccountListRespDto(User user, List<Account> accounts) {
+            this.fullname = user.getFullname();
+            this.accounts = accounts.stream().map((account)-> new AccountDto(account)).collect(Collectors.toList());
+        }
+
+        @Getter
+        @Setter
+        public class AccountDto {
+            private Long id;
+            private Long number;
+            private Long balance;
+
+            public AccountDto(Account account) {
+                this.id = account.getId();
+                this.number = account.getNumber();
+                this.balance = account.getBalance();
+            }
+        }
+
+
+    }
 
     @Transactional
     public AccountSaveRespDto creatAccount(AccountSaveReqDto accountSaveReqDto, Long userId){
