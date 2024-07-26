@@ -3,9 +3,12 @@ package com.study.bankapp.web;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.bankapp.config.dummy.DummyObject;
+import com.study.bankapp.domain.account.Account;
+import com.study.bankapp.domain.account.AccountRepository;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
 import com.study.bankapp.dto.account.AccountRequestDto;
+import com.study.bankapp.handler.ex.CustomApiException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.study.bankapp.dto.account.AccountResponseDto.*;
 import com.study.bankapp.dto.account.AccountRequestDto.*;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,10 +45,16 @@ class AccountControllerTest extends DummyObject {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     @BeforeEach
     public void setUp(){
         // 유저를 미리 생성해야 시큐리티 세션에서 사용될 유저를 조회할 수 있음
         User user = userRepository.save(newUser("ssar", "쌀"));
+        User cos = userRepository.save(newUser("cos", "코스"));
+        Account ssarAccount1 = accountRepository.save(newAccount(1111L, user));
+        Account cosAccount1 = accountRepository.save(newAccount(2222L, cos));
     }
 
 
@@ -77,6 +88,32 @@ class AccountControllerTest extends DummyObject {
 
         // then
         resultActions.andExpect(status().isCreated());
+
+    }
+
+    /**
+     * 테스트 시점에서는 insert 한 것들이 전부 Persistence Context에 올라감 - 영속화
+     * 영속화 된 것들을 초기화 해주는 것이 개발 모드와 동일한 환경으로 테스트 할 수 있게 해준다.
+     * 최초 select는 쿼리가 발생하지만 Persistenc Context에 존재하면 1차 캐시를 함
+     * Lazy 로딩은 쿼리도 발생 안함 - Persistence Context에 존재하면
+     * Lazy 로딩할 때 Persistence Context에 존재하지 않으면 쿼리가 발생함
+     */
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void deleteAccount_test() throws Exception{
+        // given
+        Long number = 1111L;
+
+        // when
+        ResultActions resultActions = mvc.perform(delete("/api/s/account/" + number));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println(responseBody);
+
+        // then
+        // JUnit 테스트에서 delete 쿼리는 DB관련으로 가장 마지막에 실행되면 발동 안된다.
+        assertThrows(CustomApiException.class, ()-> accountRepository.findByNumber(number).orElseThrow(
+                ()-> new CustomApiException("계좌를 찾을 수 없습니다")
+        ));
 
     }
 
