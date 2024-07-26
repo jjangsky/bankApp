@@ -1,6 +1,7 @@
 package com.study.bankapp.domain.account;
 
 import com.study.bankapp.domain.user.User;
+import com.study.bankapp.handler.ex.CustomApiException;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,6 +53,12 @@ public class Account {
         this.user = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public void checkOwner(Long userId){
+        if(user.getId() != userId){
+            throw new CustomApiException("계좌 소유자가 아닙니다.");
+        }
     }
 
 

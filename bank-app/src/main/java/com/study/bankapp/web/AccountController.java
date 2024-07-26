@@ -2,10 +2,10 @@ package com.study.bankapp.web;
 
 import com.study.bankapp.config.auth.LoginUser;
 import com.study.bankapp.dto.ResponseDto;
-import com.study.bankapp.handler.ex.CustomForbiddenException;
 import com.study.bankapp.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.juli.logging.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,7 +32,14 @@ public class AccountController {
 
     @GetMapping("/s/account/login-user")
     public ResponseEntity<?> findUserAccount(@AuthenticationPrincipal LoginUser loginUser){
-        AccountService.AccountListRespDto accountListRespDto = accountService.getAccountListByUser(loginUser.getUser().getId());
+        AccountListRespDto accountListRespDto = accountService.getAccountListByUser(loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 목록 보기 유저별 성공", accountListRespDto), HttpStatus.OK);
     }
+
+    @DeleteMapping("/s/account/{number}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long number, @AuthenticationPrincipal LoginUser loginUser){
+        accountService.deleteAccount(number, loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
+    }
+
 }

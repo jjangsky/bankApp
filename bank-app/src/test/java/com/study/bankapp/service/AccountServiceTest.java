@@ -9,6 +9,8 @@ import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
 import com.study.bankapp.dto.account.AccountRequestDto.AccountSaveReqDto;
 import com.study.bankapp.dto.account.AccountResponseDto;
+import com.study.bankapp.handler.ex.CustomApiException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +22,8 @@ import java.util.Optional;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +67,23 @@ class AccountServiceTest extends DummyObject {
 
         // then
         assertThat(accountSaveRespDto.getNumber()).isEqualTo(1111L);
+    }
+
+    @DisplayName("계좌 삭제 테스트")
+    @Test
+    public void deleteAccountTest(){
+        // given
+        Long number = 1111L;
+        Long userId = 1L;
+
+        // stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount = newMockAccount(1L, 1111L, 1000L, ssar);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount));
+
+        // when, then
+        assertThrows(CustomApiException.class, () -> accountService.deleteAccount(number, userId));
+
     }
 
 }
