@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@Transactional
+//@Transactional
+
+/**
+ * `@SQL을 사용하는 이유
+ *  `@BeforeEach`로 테스트 마다 회원을 생성하고 롤백시키면 PK값이 계속 증가된다.
+ *  내가 예측한 회원의 PK 값과 생성된 회원의 PK값이 다를 수 도 있게 된다.
+ *
+ *  여러 테스트를 진행하면서 1번 테스트에서 회원을 생성하면서 1번 pk가 사용되고
+ *  두 번째 계좌 생성 테스트에서 테스트 시작시 회원 생성하면 2번 pk로 배정이 되는데
+ *  나는 당연히 생성된 회원이 1번 pk 사용중인줄 알았지만 롤백되어 2번 pk를 사용하고 있는
+ *  그런 예측하기 힘든 상황이 발생
+ *  -> 그래서 테이블 자체를 초기화 시키면서 테스트
+ */
+@Sql("classpath:db/teardown.sql")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
