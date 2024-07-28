@@ -42,4 +42,10 @@ public class AccountController {
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
     }
 
+    @PostMapping("/account/deposit")
+    public  ResponseEntity<?> depositAccount(@RequestBody @Valid AccountService.AccountDepositReqDto accountDepositReqDto){
+        AccountService.AccountDepositRespDto accountDepositRespDto = accountService.insertAccountPrice(accountDepositReqDto);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", null), HttpStatus.OK);
+    }
+
 }
