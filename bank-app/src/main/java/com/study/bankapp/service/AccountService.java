@@ -120,60 +120,6 @@ public class AccountService {
 
 
     }
-    @Setter
-    @Getter
-    public static class AccountDepositRespDto{
-        private Long id;
-        private Long number;
-        private TransactionDto transactionDto;
-
-        public AccountDepositRespDto(Account account, Transaction transaction) {
-            this.id = account.getId();
-            this.number = account.getNumber();
-            this.transactionDto = new TransactionDto(transaction);
-        }
-
-        @Getter
-        @Setter
-        public class TransactionDto {
-            private Long id;
-            private String gubun;
-            private String sender;
-            private String reciver;
-            private Long amount;
-            @JsonIgnore
-            private Long depositAccountBalance;  // 클라이언트 전달 X
-            private String tel;
-            private String createdAt;
-
-            public TransactionDto(Transaction transaction) {
-                this.id = transaction.getId();
-                this.gubun = transaction.getGubun().getValue();
-                this.sender = transaction.getSender();
-                this.reciver = transaction.getReceiver();
-                this.amount = transaction.getAmount();
-                this.depositAccountBalance = transaction.getDepositAccountBalance();
-                this.tel = transaction.getTel();
-                this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
-            }
-        }
 
 
-    }
-
-    @Getter
-    @Setter
-    public static class AccountDepositReqDto {
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long number;
-        @NotNull
-        private Long amount;
-        @NotEmpty
-        @Pattern(regexp = "^(DEPOSIT)$")
-        private String gubun;
-        @NotEmpty
-        @Pattern(regexp = "^[0-9]{11}")
-        private String tel;
-    }
 }

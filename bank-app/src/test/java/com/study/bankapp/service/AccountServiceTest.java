@@ -5,8 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.bankapp.config.dummy.DummyObject;
 import com.study.bankapp.domain.account.Account;
 import com.study.bankapp.domain.account.AccountRepository;
+import com.study.bankapp.domain.transaction.Transaction;
+import com.study.bankapp.domain.transaction.TransactionRespository;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
+import com.study.bankapp.dto.account.AccountRequestDto;
 import com.study.bankapp.dto.account.AccountRequestDto.AccountSaveReqDto;
 import com.study.bankapp.dto.account.AccountResponseDto;
 import com.study.bankapp.handler.ex.CustomApiException;
@@ -17,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.study.bankapp.dto.account.AccountResponseDto.*;
+import com.study.bankapp.dto.account.AccountRequestDto.*;
 
 import java.util.Optional;
 
@@ -38,6 +43,9 @@ class AccountServiceTest extends DummyObject {
 
     @Mock // 가짜 객체 주입
     private AccountRepository accountRepository;
+
+    @Mock
+    private TransactionRespository transactionRespository;
 
     @Spy // 진짜 객체 주입
     private ObjectMapper om;
@@ -83,6 +91,41 @@ class AccountServiceTest extends DummyObject {
 
         // when, then
         assertThrows(CustomApiException.class, () -> accountService.deleteAccount(number, userId));
+
+    }
+
+    @DisplayName("계좌 입금 테스트")
+    @Test
+    public void insertAccountPriceTest(){
+        // given
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01012341234");
+
+        // stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount1));
+
+        /**
+         * 스터빙이 진행될 때 마다 연관 객체는 새로 만들어서 주입해야 한다.
+         * -> 타이밍 때문에 꼬일 수 있다.
+         */
+        Account ssarAccount2 = newMockAccount(1L, 1111L, 1000L, ssar);
+        Transaction transaction = newMockDepositTransaction(1L, ssarAccount2);
+        when(transactionRespository.save(any())).thenReturn(transaction);
+
+        // when
+        AccountDepositRespDto accountDepositRespDto = accountService.insertAccountPrice(accountDepositReqDto);
+        System.out.println("잔액 : " + accountDepositRespDto.getTransaction().getDepositAccountBalance());
+
+
+        // then
+        assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
+        assertThat(accountDepositRespDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
+
 
     }
 

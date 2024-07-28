@@ -3,7 +3,9 @@ package com.study.bankapp.dto.account;
 import com.study.bankapp.domain.account.Account;
 import com.study.bankapp.domain.user.User;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -61,5 +63,21 @@ public class AccountRequestDto {
         }
 
 
+    }
+
+    @Getter
+    @Setter
+    public static class AccountDepositReqDto {
+        @NotNull
+        @Digits(integer = 4, fraction = 4)
+        private Long number;
+        @NotNull
+        private Long amount;
+        @NotEmpty
+        @Pattern(regexp = "^(DEPOSIT)$")
+        private String gubun;
+        @NotEmpty
+        @Pattern(regexp = "^[0-9]{11}")
+        private String tel;
     }
 }

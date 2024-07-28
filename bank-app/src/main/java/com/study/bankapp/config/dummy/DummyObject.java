@@ -1,6 +1,8 @@
 package com.study.bankapp.config.dummy;
 
 import com.study.bankapp.domain.account.Account;
+import com.study.bankapp.domain.transaction.Transaction;
+import com.study.bankapp.domain.transaction.TransactionEnum;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserEnum;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -8,6 +10,25 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.time.LocalDateTime;
 
 public class DummyObject {
+
+    protected static Transaction newMockDepositTransaction(Long id, Account account){
+        Transaction transaction = Transaction.builder()
+                .id(id)
+                .withdrawAccount(null)
+                .depositAccount(account)
+                .withdrawAccountBalance(null)
+                .depositAccountBalance(account.getBalance())
+                .amount(100L)
+                .gubun(TransactionEnum.DEPOSIT)
+                .sender("ATM")
+                .receiver(account.getNumber() + "")
+                .tel("01088887777")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+        return transaction;
+    }
+
     protected User newUser(String username, String fullname){
         // 진짜 유저 생성
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
