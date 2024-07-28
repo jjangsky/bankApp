@@ -61,6 +61,12 @@ public class Account {
         }
     }
 
+    public void deposit(Long amount){
+        balance = balance + amount;
+    }
+
+
+
 
 
 }
