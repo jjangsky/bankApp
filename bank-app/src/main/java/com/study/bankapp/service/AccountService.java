@@ -1,6 +1,5 @@
 package com.study.bankapp.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.bankapp.domain.account.Account;
 import com.study.bankapp.domain.account.AccountRepository;
 import com.study.bankapp.domain.transaction.Transaction;
@@ -8,25 +7,20 @@ import com.study.bankapp.domain.transaction.TransactionEnum;
 import com.study.bankapp.domain.transaction.TransactionRespository;
 import com.study.bankapp.domain.user.User;
 import com.study.bankapp.domain.user.UserRepository;
-import com.study.bankapp.dto.account.AccountRequestDto;
+import com.study.bankapp.dto.account.AccountRequestDto.AccountDepositReqDto;
+import com.study.bankapp.dto.account.AccountRequestDto.AccountListRespDto;
+import com.study.bankapp.dto.account.AccountRequestDto.AccountSaveReqDto;
+import com.study.bankapp.dto.account.AccountResponseDto.AccountDepositRespDto;
+import com.study.bankapp.dto.account.AccountResponseDto.AccountSaveRespDto;
 import com.study.bankapp.handler.ex.CustomApiException;
-import com.study.bankapp.util.CustomDateUtil;
-import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.study.bankapp.dto.account.AccountResponseDto.*;
 import com.study.bankapp.dto.account.AccountRequestDto.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -116,8 +110,49 @@ public class AccountService {
         Transaction transactionPS = transactionRespository.save(transaction);
         return new AccountDepositRespDto(depositAccountPS, transactionPS);
 
+    }
 
+    @Transactional
+    public AccountWithdrawRespDto accountwWthdraw(AccountWithdrawReqDto accountWithdrawReqDto, Long userid){
+        // 0원 체크
+        if(accountWithdrawReqDto.getAmount() <= 0L){
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다.");
+        }
 
+        // 출금 계좌 확인
+        Account withdrawAccountPS = accountRepository.findByNumber(accountWithdrawReqDto.getNumber())
+                .orElseThrow(
+                        () -> new CustomApiException("계좌를 찾을 수 없습니다.")
+                );
+        
+        // 출금 소유자 확인 - 로그인 사람과 동일
+        withdrawAccountPS.checkOwner(userid);
+        
+        // 출금 계좌 비밀번호 확인
+        withdrawAccountPS.checkSamePassword(accountWithdrawReqDto.getPassword());
+        
+        // 출금계좌 잔액 확인
+        withdrawAccountPS.checkBalance(accountWithdrawReqDto.getAmount());
+        
+        // 출금하기
+        withdrawAccountPS.withdraw(accountWithdrawReqDto.getAmount());
+        
+        // 거래내역 남기기
+        Transaction transaction = Transaction.builder()
+                .withdrawAccount(withdrawAccountPS)
+                .depositAccount(null)
+                .withdrawAccountBalance(withdrawAccountPS.getBalance())
+                .depositAccountBalance(null)
+                .amount(accountWithdrawReqDto.getAmount())
+                .gubun(TransactionEnum.TRANSFER)
+                .sender(accountWithdrawReqDto.getNumber() + "")
+                .receiver(null)
+                .build();
+
+        Transaction transactionPS = transactionRespository.save(transaction);
+
+        // DTO 응답
+        return new AccountWithdrawRespDto(withdrawAccountPS, transactionPS);
 
     }
 
