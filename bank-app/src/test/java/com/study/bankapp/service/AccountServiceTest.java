@@ -125,8 +125,27 @@ class AccountServiceTest extends DummyObject {
         // then
         assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
         assertThat(accountDepositRespDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
+    }
 
+    // 서비스 테스트를 보여드린 것은, 기술적인 테크닉!!
+    // 진짜 서비스를 테스트 하고 싶으면, 내가 지금 무엇을 여기서 테스트해야할지 명확히 구분 (책임 분리)
+    // DTO를 만드는 책임 -> 서비스에 있지만!! (서비스에서 DTO검증 안할래!! - Controller 테스트 해볼 것이니까)
+    // DB관련된 것도 -> 서비스 것이 아니야.. 볼필요없어
+    // DB관련된 것을 조회했을 때, 그 값을 통해서 어떤 비지니스 로직이 흘러가는 것이 있으면 -> stub으로 정의해서 테스트 해보면 된다.
+    @Test
+    public void insertAccountPriceTest3() throws Exception {
+        // given
+        Account account = newMockAccount(1L, 1111L, 1000L, null);
+        Long amount = 100L;
 
+        // when
+        if (amount <= 0L) {
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다");
+        }
+        account.deposit(100L);
+
+        // then
+        assertThat(account.getBalance()).isEqualTo(1100L);
     }
 
 }
