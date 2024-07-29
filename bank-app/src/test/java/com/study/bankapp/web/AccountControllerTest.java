@@ -131,4 +131,27 @@ class AccountControllerTest extends DummyObject {
 
     }
 
+    @Test
+    public void depositAccount_test() throws Exception{
+        // given
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01012341234");
+
+        String requestBody = om.writeValueAsString(accountDepositReqDto);
+        System.out.println(requestBody);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/account/deposit")
+                .content(requestBody)
+                .contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+
+        // then
+        resultActions.andExpect(status().isCreated());
+
+    }
+
 }
