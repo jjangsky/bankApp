@@ -43,9 +43,20 @@ public class AccountController {
     }
 
     @PostMapping("/account/deposit")
-    public  ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDto accountDepositReqDto){
+    public  ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDto accountDepositReqDto
+            , BindingResult bindingResult){
         AccountDepositRespDto accountDepositRespDto = accountService.insertAccountPrice(accountDepositReqDto);
-        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", accountDepositRespDto), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/s/account/withdraw")
+    public  ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDto accountWithdrawReqDto,
+                                              BindingResult bindingResult,
+                                              @AuthenticationPrincipal LoginUser loginUser){
+        // `@Valid` 뒤에 바로 인증 어노테이션 붙은 LoginUser 붙으면 안됨
+        AccountWithdrawRespDto accountWithdrawRespDto = accountService.accountwWthdraw(accountWithdrawReqDto
+                ,   loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료", accountWithdrawRespDto), HttpStatus.CREATED);
     }
 
 }
