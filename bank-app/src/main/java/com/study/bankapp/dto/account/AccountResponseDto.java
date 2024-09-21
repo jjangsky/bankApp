@@ -88,6 +88,7 @@ public class AccountResponseDto {
             private String sender;
             private String reciver;
             private Long amount;
+            private Long depositAccountBalance;
             private String createdAt;
 
             public TransactionDto(Transaction transaction) {
@@ -96,6 +97,7 @@ public class AccountResponseDto {
                 this.sender = transaction.getSender();
                 this.reciver = transaction.getReceiver();
                 this.amount = transaction.getAmount();
+                this.depositAccountBalance = transaction.getDepositAccountBalance();
                 this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
             }
         }
